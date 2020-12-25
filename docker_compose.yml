@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+    fpl_api_nginx:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile_nginx
+        image: fpl/api-nginx
+        container_name: fpl_api_nginx
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "8080:80"
+        networks:
+            - fpl-api-network
+        depends_on:
+            - fpl_api_php
+
+    fpl_api_php:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile_php
+        image: fpl/api-php-fpm
+        container_name: fpl_api_php
+        environment:
+            APP_ENV: dev
+            APP_SECRET: 4288c7ada3b776d4dd6656c385adef43
+        working_dir: /var/www
+        tty: true
+        volumes:
+            - ./:/var/www
+        restart: unless-stopped
+        networks:
+            - fpl-api-network
+
+networks:
+    fpl-api-network:
+        driver: bridge
