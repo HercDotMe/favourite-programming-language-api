@@ -6,3 +6,32 @@ services:
         autowire: false      # Automatically injects dependencies in your services.
         autoconfigure: false # Automatically registers your services as commands, event subscribers, etc.
 
+    api.response.parser.github:
+        class: App\Service\GitHubApiResponseParser
+        arguments:
+            - '@serializer'
+
+    api.client.github:
+        class: App\Service\GitHubApiClient
+        arguments:
+            - 'https://api.github.com'
+            - '@http_client'
+            - '@api.response.parser.github'
+
+    api.data_provider:
+        class: App\Service\DataProviderSelector
+        arguments:
+            - '@api.client.github'
+
+    favourite_language.calculator.simple:
+        class: App\Service\SimpleFavouriteLanguageCalculator
+
+    App\Controller\Api\FavouriteLanguageController:
+        class: App\Controller\Api\FavouriteLanguageController
+        arguments:
+            - '@api.data_provider'
+            - '@favourite_language.calculator.simple'
+            - '@serializer'
+            - '@logger'
+        tags:
+            - 'controller.service_arguments'

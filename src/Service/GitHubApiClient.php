@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Repository;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GitHubApiClient implements ApiClient
@@ -21,9 +22,9 @@ class GitHubApiClient implements ApiClient
     /**
      * {@inheritDoc}
      */
-    public function getUserRepositories(string $username): array
+    public function getUserRepositories(string $identifier): array
     {
-        $endpoint = sprintf($this->apiDomain.'/users/%s/repos', $username);
+        $endpoint = sprintf($this->apiDomain.'/users/%s/repos', $identifier);
         $response = $this->client->request('GET', $endpoint)->getContent();
 
         return $this->responseParser->parseRepositoriesResponse($response);
@@ -32,11 +33,26 @@ class GitHubApiClient implements ApiClient
     /**
      * {@inheritDoc}
      */
-    public function getRepositoryLanguages(string $repositoryName): array
+    public function getRepositoryLanguages(Repository $repository): array
     {
-        $endpoint = sprintf($this->apiDomain.'/repos/%s/languages', $repositoryName);
+        $endpoint = sprintf($this->apiDomain.'/repos/%s/languages', $repository->getFullName());
         $response = $this->client->request('GET', $endpoint)->getContent();
 
         return $this->responseParser->parseLanguagesResponse($response);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getUserLanguages(string $identifier): array
+    {
+        $repositories = $this->getUserRepositories($identifier);
+
+        $languages = [];
+        foreach ($repositories as $repository) {
+            $languages = array_merge($this->getRepositoryLanguages($repository), $languages);
+        }
+
+        return $languages;
     }
 }

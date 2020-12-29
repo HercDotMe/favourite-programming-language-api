@@ -12,7 +12,10 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class GitHubApiClientSpec extends ObjectBehavior
 {
-    function let(HttpClientInterface $httpClient, ApiResponseParser $parser)
+    function let(
+        HttpClientInterface $httpClient,
+        ApiResponseParser $parser
+    )
     {
         $this->beConstructedWith('https://test.api.domain', $httpClient, $parser);
     }
@@ -22,7 +25,11 @@ class GitHubApiClientSpec extends ObjectBehavior
         $this->shouldHaveType(GitHubApiClient::class);
     }
 
-    function it_calls_user_repo_list_endpoint(HttpClientInterface $httpClient, ApiResponseParser $parser, ResponseInterface $response)
+    function it_calls_user_repo_list_endpoint(
+        HttpClientInterface $httpClient,
+        ApiResponseParser $parser,
+        ResponseInterface $response
+    )
     {
         $endpoint = 'https://test.api.domain/users/test_user/repos';
         $responseJSON = file_get_contents(__DIR__ . '/../data/repositories.json');
@@ -41,7 +48,12 @@ class GitHubApiClientSpec extends ObjectBehavior
         $this->getUserRepositories('test_user')->shouldBeLike($expectedResult);
     }
 
-    function it_calls_repo_languages_list_endpoint(HttpClientInterface $httpClient, ApiResponseParser $parser, ResponseInterface $response)
+    function it_calls_repo_languages_list_endpoint(
+        HttpClientInterface $httpClient,
+        ApiResponseParser $parser,
+        ResponseInterface $response,
+        Repository $repository
+    )
     {
         $endpoint = 'https://test.api.domain/repos/test/repo/languages';
         $responseJSON = file_get_contents(__DIR__ . '/../data/languages.json');
@@ -54,6 +66,32 @@ class GitHubApiClientSpec extends ObjectBehavior
         $response->getContent()->shouldBeCalled()->willReturn($responseJSON);
         $parser->parseLanguagesResponse($responseJSON)->shouldBeCalled()->willReturn($expectedResult);
 
-        $this->getRepositoryLanguages('test/repo')->shouldBeLike($expectedResult);
+        $repository->getFullName()->shouldBeCalled()->willReturn('test/repo');
+
+        $this->getRepositoryLanguages($repository)->shouldBeLike($expectedResult);
+    }
+
+    function it_gets_all_languages_for_all_repositories(
+        HttpClientInterface $httpClient,
+        ApiResponseParser $parser,
+        ResponseInterface $repositoriesResponse,
+        ResponseInterface $languagesResponse,
+        Repository $repository,
+        ProgrammingLanguage $language
+    )
+    {
+        $httpClient->request('GET', 'https://test.api.domain/users/test_user/repos')->shouldBeCalled()->willReturn($repositoriesResponse);
+        $repositoriesResponse->getContent()->shouldBeCalled()->willReturn('');
+        $parser->parseRepositoriesResponse('')->shouldBeCalled()->willReturn([$repository]);
+
+        $repository->getFullName()->shouldBeCalled()->willReturn('test/repo');
+
+        $httpClient->request('GET', 'https://test.api.domain/repos/test/repo/languages')->shouldBeCalled()->willReturn($languagesResponse);
+        $languagesResponse->getContent()->shouldBeCalled()->willReturn('');
+        $parser->parseLanguagesResponse('')->shouldBeCalled()->willReturn([$language]);
+
+        $this->getUserLanguages('test_user')->shouldBeLike(
+            [$language]
+        );
     }
 }

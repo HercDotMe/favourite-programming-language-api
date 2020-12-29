@@ -1,11 +1,10 @@
 version: "3.9"
 services:
     fpl_api_nginx:
-        build:
-            context: .
-            dockerfile: docker/Dockerfile_nginx
-        image: fpl/api-nginx
-        container_name: fpl_api_nginx
+        image: vladerc/fpm-nginx:v1.1
+        environment:
+            FPM_CONTAINER_NAME: fpl_api_php
+        container_name: fpm-nginx
         restart: unless-stopped
         tty: true
         ports:
@@ -18,7 +17,7 @@ services:
     fpl_api_php:
         build:
             context: .
-            dockerfile: docker/Dockerfile_php
+            dockerfile: Dockerfile
         image: fpl/api-php-fpm
         container_name: fpl_api_php
         environment:

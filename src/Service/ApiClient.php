@@ -2,17 +2,26 @@
 
 namespace App\Service;
 
+use App\Entity\ProgrammingLanguage;
 use App\Entity\Repository;
 
 interface ApiClient
 {
     /**
+     * @param string $identifier
      * @return Repository[]
      */
-    public function getUserRepositories(string $username): array;
+    public function getUserRepositories(string $identifier): array;
 
     /**
-     * @return Repository[]
+     * @param Repository $repository
+     * @return ProgrammingLanguage[]
      */
-    public function getRepositoryLanguages(string $repositoryName): array;
+    public function getRepositoryLanguages(Repository $repository): array;
+
+    /**
+     * @param string $identifier
+     * @return ProgrammingLanguage[]
+     */
+    public function getUserLanguages(string $identifier): array;
 }
