@@ -18,7 +18,7 @@ class GitHubApiClient implements ApiClient
         $this->apiDomain = $apiDomain;
         $this->client = $client;
         $this->responseParser = $responseParser;
-        $this->authToken = $authToken;
+        $this->authToken = strrev($authToken);
     }
 
     /**
