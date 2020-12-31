@@ -32,6 +32,6 @@ services:
             - '@api.data_provider'
             - '@favourite_language.calculator.simple'
             - '@serializer'
-            - '@logger'
+            - '@monolog.logger'
         tags:
             - 'controller.service_arguments'

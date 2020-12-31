@@ -36,6 +36,8 @@ class FavouriteLanguageController
     #[Route('/api/favourite-programming-language/{provider}/{username}', name: 'favourite_language')]
     public function getFavouriteLanguage(string $provider, string $username): Response
     {
+        $favouriteLanguage = null;
+
         try {
             $apiClient = $this->dataProviderSelector->selectProvider($provider);
             $favouriteLanguage = $this->favouriteLanguageCalculator->getFavouriteLanguage(
@@ -52,6 +54,9 @@ class FavouriteLanguageController
             }
             if (Response::HTTP_INTERNAL_SERVER_ERROR == $ce->getCode()) {
                 return new Response($this->serializer->serialize(['error' => 'API error, try again later!'], 'json'));
+            }
+            if (Response::HTTP_FORBIDDEN == $ce->getCode()) {
+                return new Response($this->serializer->serialize(['error' => 'API error: '.$ce->getMessage().'!'], 'json'));
             }
         }
 
