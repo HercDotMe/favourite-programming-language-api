@@ -55,9 +55,8 @@ class FavouriteLanguageController
             if (Response::HTTP_INTERNAL_SERVER_ERROR == $ce->getCode()) {
                 return new Response($this->serializer->serialize(['error' => 'API error, try again later!'], 'json'));
             }
-            if (Response::HTTP_FORBIDDEN == $ce->getCode()) {
-                return new Response($this->serializer->serialize(['error' => 'API error: '.$ce->getMessage().'!'], 'json'));
-            }
+
+            return new Response($this->serializer->serialize(['error' => 'API error (#'.$ce->getCode().'): '.$ce->getMessage().'!'], 'json'));
         }
 
         return new Response($this->serializer->serialize($favouriteLanguage, 'json'));

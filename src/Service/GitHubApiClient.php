@@ -11,12 +11,14 @@ class GitHubApiClient implements ApiClient
 
     private HttpClientInterface $client;
     private ApiResponseParser $responseParser;
+    private string $authToken;
 
-    public function __construct(string $apiDomain, HttpClientInterface $client, ApiResponseParser $responseParser)
+    public function __construct(string $apiDomain, HttpClientInterface $client, ApiResponseParser $responseParser, string $authToken)
     {
         $this->apiDomain = $apiDomain;
         $this->client = $client;
         $this->responseParser = $responseParser;
+        $this->authToken = $authToken;
     }
 
     /**
@@ -25,7 +27,9 @@ class GitHubApiClient implements ApiClient
     public function getUserRepositories(string $identifier): array
     {
         $endpoint = sprintf($this->apiDomain.'/users/%s/repos', $identifier);
-        $response = $this->client->request('GET', $endpoint)->getContent();
+        $response = $this->client->request('GET', $endpoint, [
+            'auth_bearer' => $this->authToken
+        ])->getContent();
 
         return $this->responseParser->parseRepositoriesResponse($response);
     }
@@ -36,7 +40,9 @@ class GitHubApiClient implements ApiClient
     public function getRepositoryLanguages(Repository $repository): array
     {
         $endpoint = sprintf($this->apiDomain.'/repos/%s/languages', $repository->getFullName());
-        $response = $this->client->request('GET', $endpoint)->getContent();
+        $response = $this->client->request('GET', $endpoint, [
+            'auth_bearer' => $this->authToken
+        ])->getContent();
 
         return $this->responseParser->parseLanguagesResponse($response);
     }

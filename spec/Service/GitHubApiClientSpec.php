@@ -17,7 +17,7 @@ class GitHubApiClientSpec extends ObjectBehavior
         ApiResponseParser $parser
     )
     {
-        $this->beConstructedWith('https://test.api.domain', $httpClient, $parser);
+        $this->beConstructedWith('https://test.api.domain', $httpClient, $parser, 'test_token');
     }
 
     function it_is_initializable()
@@ -41,7 +41,9 @@ class GitHubApiClientSpec extends ObjectBehavior
                 ->setUrl("https://api.github.com/repos/octocat/Hello-World")
         ];
 
-        $httpClient->request('GET', $endpoint)->shouldBeCalled()->willReturn($response);
+        $httpClient->request('GET', $endpoint, [
+            'auth_bearer' => 'test_token'
+        ])->shouldBeCalled()->willReturn($response);
         $response->getContent()->shouldBeCalled()->willReturn($responseJSON);
         $parser->parseRepositoriesResponse($responseJSON)->shouldBeCalled()->willReturn($expectedResult);
 
@@ -62,7 +64,9 @@ class GitHubApiClientSpec extends ObjectBehavior
             (new ProgrammingLanguage())->setName('Python')->setByteCount(7769)
         ];
 
-        $httpClient->request('GET', $endpoint)->shouldBeCalled()->willReturn($response);
+        $httpClient->request('GET', $endpoint, [
+            'auth_bearer' => 'test_token'
+        ])->shouldBeCalled()->willReturn($response);
         $response->getContent()->shouldBeCalled()->willReturn($responseJSON);
         $parser->parseLanguagesResponse($responseJSON)->shouldBeCalled()->willReturn($expectedResult);
 
@@ -80,13 +84,17 @@ class GitHubApiClientSpec extends ObjectBehavior
         ProgrammingLanguage $language
     )
     {
-        $httpClient->request('GET', 'https://test.api.domain/users/test_user/repos')->shouldBeCalled()->willReturn($repositoriesResponse);
+        $httpClient->request('GET', 'https://test.api.domain/users/test_user/repos', [
+            'auth_bearer' => 'test_token'
+        ])->shouldBeCalled()->willReturn($repositoriesResponse);
         $repositoriesResponse->getContent()->shouldBeCalled()->willReturn('');
         $parser->parseRepositoriesResponse('')->shouldBeCalled()->willReturn([$repository]);
 
         $repository->getFullName()->shouldBeCalled()->willReturn('test/repo');
 
-        $httpClient->request('GET', 'https://test.api.domain/repos/test/repo/languages')->shouldBeCalled()->willReturn($languagesResponse);
+        $httpClient->request('GET', 'https://test.api.domain/repos/test/repo/languages', [
+            'auth_bearer' => 'test_token'
+        ])->shouldBeCalled()->willReturn($languagesResponse);
         $languagesResponse->getContent()->shouldBeCalled()->willReturn('');
         $parser->parseLanguagesResponse('')->shouldBeCalled()->willReturn([$language]);
 

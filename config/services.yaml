@@ -17,6 +17,7 @@ services:
             - 'https://api.github.com'
             - '@http_client'
             - '@api.response.parser.github'
+            - 'bff447b56fd1aac83e58c31b09fc3fd9606ddf47'
 
     api.data_provider:
         class: App\Service\DataProviderSelector
