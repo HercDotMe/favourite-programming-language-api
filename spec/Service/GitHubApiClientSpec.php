@@ -17,7 +17,7 @@ class GitHubApiClientSpec extends ObjectBehavior
         ApiResponseParser $parser
     )
     {
-        $this->beConstructedWith('https://test.api.domain', $httpClient, $parser, 'test_token');
+        $this->beConstructedWith('https://test.api.domain', $httpClient, $parser, 'nekot_tset');
     }
 
     function it_is_initializable()
